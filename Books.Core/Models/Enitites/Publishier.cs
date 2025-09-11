@@ -1,6 +1,6 @@
-﻿namespace Books.Core.Models;
+﻿namespace Books.Core.Models.Enitites;
 
-public class Genre
+public class Publishier
 {
     public Guid Id { get; set; }
     public required string Name { get; set; }

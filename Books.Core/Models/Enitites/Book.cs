@@ -1,4 +1,4 @@
-﻿namespace Books.Core.Models;
+﻿namespace Books.Core.Models.Enitites;
 
 public class Book
 {

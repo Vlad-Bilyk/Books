@@ -1,5 +1,8 @@
 ﻿using Books.App;
+using Books.App.IO;
+using Books.Core.Interfaces;
 using Books.Infrastructure.Data;
+using Books.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +15,10 @@ var host = Host.CreateDefaultBuilder(args)
         {
             options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"));
         });
+
+        services.AddSingleton<IConsoleWrapper, ConsoleWrapper>();
+        services.AddSingleton<IFileReader, StreamFileReader>();
+        services.AddSingleton<IBookCsvParser, BookCsvParser>();
 
         services.AddTransient<AppRunner>();
     })
