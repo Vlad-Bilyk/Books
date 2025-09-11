@@ -1,12 +1,23 @@
 ﻿using Books.App;
+using Books.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-var services = new ServiceCollection();
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"));
+        });
 
-services.AddTransient<AppRunner>();
+        services.AddTransient<AppRunner>();
+    })
+    .Build();
 
-// Register application services
-using var serviceProvider = services.BuildServiceProvider();
+using var scope = host.Services.CreateScope();
 
-var app = serviceProvider.GetRequiredService<AppRunner>();
+var app = scope.ServiceProvider.GetRequiredService<AppRunner>();
 app.Run();
