@@ -22,7 +22,7 @@ namespace Books.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Books.Core.Models.Author", b =>
+            modelBuilder.Entity("Books.Core.Models.Entities.Author", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,14 +30,17 @@ namespace Books.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Authors");
                 });
 
-            modelBuilder.Entity("Books.Core.Models.Book", b =>
+            modelBuilder.Entity("Books.Core.Models.Entities.Book", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -52,10 +55,7 @@ namespace Books.Infrastructure.Migrations
                     b.Property<int>("Pages")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("PublisherID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PublishierId")
+                    b.Property<Guid>("PublisherId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ReleaseDate")
@@ -63,7 +63,8 @@ namespace Books.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -71,12 +72,15 @@ namespace Books.Infrastructure.Migrations
 
                     b.HasIndex("GenreId");
 
-                    b.HasIndex("PublishierId");
+                    b.HasIndex("PublisherId");
+
+                    b.HasIndex("Title", "AuthorId", "PublisherId", "ReleaseDate")
+                        .IsUnique();
 
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("Books.Core.Models.Genre", b =>
+            modelBuilder.Entity("Books.Core.Models.Entities.Genre", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -84,14 +88,17 @@ namespace Books.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Genres");
                 });
 
-            modelBuilder.Entity("Books.Core.Models.Publishier", b =>
+            modelBuilder.Entity("Books.Core.Models.Entities.Publisher", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,53 +106,41 @@ namespace Books.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Publishiers");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Publishers");
                 });
 
-            modelBuilder.Entity("Books.Core.Models.Book", b =>
+            modelBuilder.Entity("Books.Core.Models.Entities.Book", b =>
                 {
-                    b.HasOne("Books.Core.Models.Author", "Author")
-                        .WithMany("Books")
+                    b.HasOne("Books.Core.Models.Entities.Author", "Author")
+                        .WithMany()
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Books.Core.Models.Genre", "Genre")
-                        .WithMany("Books")
+                    b.HasOne("Books.Core.Models.Entities.Genre", "Genre")
+                        .WithMany()
                         .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Books.Core.Models.Publishier", "Publishier")
-                        .WithMany("Books")
-                        .HasForeignKey("PublishierId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("Books.Core.Models.Entities.Publisher", "Publisher")
+                        .WithMany()
+                        .HasForeignKey("PublisherId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Author");
 
                     b.Navigation("Genre");
 
-                    b.Navigation("Publishier");
-                });
-
-            modelBuilder.Entity("Books.Core.Models.Author", b =>
-                {
-                    b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("Books.Core.Models.Genre", b =>
-                {
-                    b.Navigation("Books");
-                });
-
-            modelBuilder.Entity("Books.Core.Models.Publishier", b =>
-                {
-                    b.Navigation("Books");
+                    b.Navigation("Publisher");
                 });
 #pragma warning restore 612, 618
         }

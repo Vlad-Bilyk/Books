@@ -1,4 +1,5 @@
-﻿
+﻿using Books.Core.Interfaces;
+
 namespace Books.App.IO;
 
 public class StreamFileReader : IFileReader

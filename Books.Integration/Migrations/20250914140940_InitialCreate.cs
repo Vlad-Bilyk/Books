@@ -16,7 +16,7 @@ namespace Books.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,7 +28,7 @@ namespace Books.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,15 +36,15 @@ namespace Books.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Publishiers",
+                name: "Publishers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Publishiers", x => x.Id);
+                    table.PrimaryKey("PK_Publishers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -52,13 +52,12 @@ namespace Books.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(450)", maxLength: 450, nullable: false),
                     Pages = table.Column<int>(type: "int", nullable: false),
                     GenreId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PublisherID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PublishierId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    PublisherId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -68,20 +67,26 @@ namespace Books.Infrastructure.Migrations
                         column: x => x.AuthorId,
                         principalTable: "Authors",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Books_Genres_GenreId",
                         column: x => x.GenreId,
                         principalTable: "Genres",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Books_Publishiers_PublishierId",
-                        column: x => x.PublishierId,
-                        principalTable: "Publishiers",
+                        name: "FK_Books_Publishers_PublisherId",
+                        column: x => x.PublisherId,
+                        principalTable: "Publishers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Authors_Name",
+                table: "Authors",
+                column: "Name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Books_AuthorId",
@@ -94,9 +99,27 @@ namespace Books.Infrastructure.Migrations
                 column: "GenreId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Books_PublishierId",
+                name: "IX_Books_PublisherId",
                 table: "Books",
-                column: "PublishierId");
+                column: "PublisherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_Title_AuthorId_PublisherId_ReleaseDate",
+                table: "Books",
+                columns: new[] { "Title", "AuthorId", "PublisherId", "ReleaseDate" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Genres_Name",
+                table: "Genres",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Publishers_Name",
+                table: "Publishers",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -112,7 +135,7 @@ namespace Books.Infrastructure.Migrations
                 name: "Genres");
 
             migrationBuilder.DropTable(
-                name: "Publishiers");
+                name: "Publishers");
         }
     }
 }

@@ -18,7 +18,8 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IConsoleWrapper, ConsoleWrapper>();
         services.AddSingleton<IFileReader, StreamFileReader>();
-        services.AddSingleton<IBookCsvParser, BookCsvParser>();
+        services.AddSingleton<BookCsvParser>();
+        services.AddScoped<IBookImportService, BookImportService>();
 
         services.AddTransient<AppRunner>();
     })
@@ -27,4 +28,4 @@ var host = Host.CreateDefaultBuilder(args)
 using var scope = host.Services.CreateScope();
 
 var app = scope.ServiceProvider.GetRequiredService<AppRunner>();
-app.Run();
+await app.RunAsync();

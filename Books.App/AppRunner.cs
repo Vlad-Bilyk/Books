@@ -1,26 +1,19 @@
-﻿using Books.App.IO;
-using Books.Core.Interfaces;
-using Books.Infrastructure.Data;
+﻿using Books.Core.Interfaces;
 
 namespace Books.App;
 
 public class AppRunner
 {
     private readonly IConsoleWrapper _console;
-    private readonly IFileReader _fileReader;
-    private readonly IBookCsvParser _bookCsvParser;
-    private readonly AppDbContext _dbContext;
+    private readonly IBookImportService _bookImportService;
 
-    public AppRunner(IConsoleWrapper console, IFileReader fileReader, IBookCsvParser bookCsvParser,
-        AppDbContext dbContext)
+    public AppRunner(IConsoleWrapper console, IBookImportService bookImportService)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
-        _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
-        _bookCsvParser = bookCsvParser ?? throw new ArgumentNullException(nameof(bookCsvParser));
-        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _bookImportService = bookImportService;
     }
 
-    public void Run()
+    public async Task RunAsync()
     {
         _console.WriteLine("Input file path: ");
         var inPath = _console.ReadLine()?.Trim() ?? string.Empty;
@@ -32,8 +25,6 @@ public class AppRunner
         }
 
         var inFull = Path.GetFullPath(inPath);
-
-        var lines = _fileReader.ReadLines(inFull);
-        var books = _bookCsvParser.Parse(lines);
+        await _bookImportService.ImportFileAsync(inFull);
     }
 }

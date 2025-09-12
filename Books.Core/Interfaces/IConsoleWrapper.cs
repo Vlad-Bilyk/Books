@@ -1,4 +1,4 @@
-﻿namespace Books.App.IO;
+﻿namespace Books.Core.Interfaces;
 
 public interface IConsoleWrapper
 {
