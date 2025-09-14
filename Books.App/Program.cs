@@ -13,7 +13,9 @@ var host = Host.CreateDefaultBuilder(args)
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection"));
+            var connString = context.Configuration.GetConnectionString("DefaultConnection")
+                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            options.UseSqlServer(connString);
         });
 
         services.AddSingleton<IConsoleWrapper, ConsoleWrapper>();
@@ -26,6 +28,18 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 using var scope = host.Services.CreateScope();
+
+var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+try
+{
+    await dbContext.Database.MigrateAsync();
+    Console.WriteLine("Database is up to date.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"DB migration failed: {ex.Message}");
+    throw;
+}
 
 var app = scope.ServiceProvider.GetRequiredService<AppRunner>();
 await app.RunAsync();
