@@ -25,6 +25,7 @@ public class AppRunner
         }
 
         var inFull = Path.GetFullPath(inPath);
-        await _bookImportService.ImportFileAsync(inFull);
+        var result = await _bookImportService.ImportFileAsync(inFull);
+        _console.WriteLine($"Added: {result.Added}, Skipped: {result.SkippedDuplicates}");
     }
 }

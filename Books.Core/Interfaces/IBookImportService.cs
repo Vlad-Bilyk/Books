@@ -1,6 +1,8 @@
-﻿namespace Books.Core.Interfaces;
+﻿using Books.Core.Models.DTO;
+
+namespace Books.Core.Interfaces;
 
 public interface IBookImportService
 {
-    Task ImportFileAsync(string filePath, CancellationToken ct = default);
+    Task<ImportResult> ImportFileAsync(string filePath, CancellationToken ct = default);
 }

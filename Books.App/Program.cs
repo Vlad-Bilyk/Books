@@ -18,7 +18,7 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IConsoleWrapper, ConsoleWrapper>();
         services.AddSingleton<IFileReader, StreamFileReader>();
-        services.AddSingleton<BookCsvParser>();
+        services.AddSingleton<IBookParser, BookCsvParser>();
         services.AddScoped<IBookImportService, BookImportService>();
 
         services.AddTransient<AppRunner>();

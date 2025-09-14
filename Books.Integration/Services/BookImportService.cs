@@ -1,6 +1,6 @@
 ﻿using Books.Core.Interfaces;
 using Books.Core.Models.DTO;
-using Books.Core.Models.Enitities;
+using Books.Core.Models.Entities;
 using Books.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,11 +11,11 @@ public class BookImportService : IBookImportService
 {
     private readonly AppDbContext _db;
     private readonly IFileReader _fileReader;
-    private readonly BookCsvParser _csvParser;
+    private readonly IBookParser _csvParser;
     private readonly ILogger<BookImportService> _logger;
 
     public BookImportService(AppDbContext db, IFileReader fileReader,
-        BookCsvParser csvParser, ILogger<BookImportService> logger)
+        IBookParser csvParser, ILogger<BookImportService> logger)
     {
         _db = db ?? throw new ArgumentNullException(nameof(db));
         _fileReader = fileReader ?? throw new ArgumentNullException(nameof(fileReader));
@@ -23,21 +23,33 @@ public class BookImportService : IBookImportService
         _logger = logger;
     }
 
-    public async Task ImportFileAsync(string filePath, CancellationToken ct = default)
+    public async Task<ImportResult> ImportFileAsync(string filePath, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
             throw new ArgumentException("File path is empty.", nameof(filePath));
         }
 
-        var lines = _fileReader.ReadLines(filePath);
-        var rows = _csvParser.Parse(lines);
+        if (!string.Equals(Path.GetExtension(filePath), ".csv", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException($"Only .csv files are supported.");
+        }
 
-        await ImportAsync(rows, ct);
+        var lines = _fileReader.ReadLines(filePath);
+
+        if (lines is null || !lines.Skip(1).Any())
+        {
+            return new ImportResult();
+        }
+
+        var rows = _csvParser.Parse(lines);
+        return await ImportAsync(rows, ct);
     }
 
-    private async Task ImportAsync(IEnumerable<ParsedBookRow> books, CancellationToken ct = default)
+    private async Task<ImportResult> ImportAsync(IEnumerable<ParsedBookRow> books, CancellationToken ct = default)
     {
+        var result = new ImportResult();
+
         var authors = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         var genres = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         var publishers = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
@@ -65,6 +77,7 @@ public class BookImportService : IBookImportService
             var key = MakeBusinessKey(book.Title, authorId, publisherId, book.ReleaseDate);
             if (!localBookKeys.Add(key))
             {
+                result.SkippedDuplicates++;
                 continue;
             }
 
@@ -76,6 +89,7 @@ public class BookImportService : IBookImportService
 
             if (exists)
             {
+                result.SkippedDuplicates++;
                 continue;
             }
 
@@ -89,12 +103,16 @@ public class BookImportService : IBookImportService
             try
             {
                 await _db.SaveChangesAsync(ct);
+                result.Added += toInsert.Count;
             }
             catch (DbUpdateException ex)
             {
+                result.SkippedDuplicates++;
                 _logger.LogWarning(ex, "Duplicates detected during SaveChanges (unique index).");
             }
         }
+
+        return result;
     }
 
     private static async Task<Guid?> TryGetIdAsync<T>(DbSet<T> set, string name,

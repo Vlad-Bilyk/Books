@@ -1,11 +1,12 @@
-﻿using Books.Core.Models.DTO;
+﻿using Books.Core.Interfaces;
+using Books.Core.Models.DTO;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Books.Infrastructure.Services;
 
-public class BookCsvParser
+public class BookCsvParser : IBookParser
 {
     private readonly ILogger<BookCsvParser> _logger;
 
@@ -16,17 +17,18 @@ public class BookCsvParser
 
     public IEnumerable<ParsedBookRow> Parse(IEnumerable<string> rows)
     {
-        foreach (var row in rows.Skip(1))
+        const int MinColumns = 6;
+
+        foreach (var row in rows.Skip(1)) // skip header
         {
-            if (string.IsNullOrWhiteSpace(row))
+            if (!IsValidRow(row))
             {
-                _logger.LogWarning("Row is empty or whitespace. Skipped: {@Row}", row);
                 continue;
             }
 
-            var bookData = Regex.Split(row, ",(?=\\S)");
+            var bookData = Regex.Split(row.Trim(), ",(?=\\S)");
 
-            if (bookData.Length != 6)
+            if (bookData.Length != MinColumns)
             {
                 _logger.LogWarning("Row does not contain exactly 6 fields. Found {FieldCount}. Skipped: {@Row}", bookData.Length, row);
                 continue;
@@ -61,5 +63,22 @@ public class BookCsvParser
                 Publisher = bookData[5].Trim(),
             };
         }
+    }
+
+    private bool IsValidRow(string row)
+    {
+        if (string.IsNullOrWhiteSpace(row))
+        {
+            _logger.LogWarning("Row is empty or whitespace. Skipped: {@Row}", row);
+            return false;
+        }
+
+        if (Regex.IsMatch(row, @"\s+,"))
+        {
+            _logger.LogWarning("Invalid CSV format: space before comma. Skipped: {@Row}", row);
+            return false;
+        }
+
+        return true;
     }
 }
