@@ -2,7 +2,7 @@
 
 namespace Books.App.IO;
 
-public class StreamFileReader : IFileReader
+public class FileReader : IFileReader
 {
     public IEnumerable<string> ReadLines(string filePath)
     {
@@ -12,6 +12,16 @@ public class StreamFileReader : IFileReader
         }
 
         return ReadLinesIterator(filePath);
+    }
+
+    public string ReadAllText(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            throw new ArgumentException("Path is null or empty", nameof(filePath));
+        }
+
+        return File.ReadAllText(filePath);
     }
 
     private static IEnumerable<string> ReadLinesIterator(string filePath)
