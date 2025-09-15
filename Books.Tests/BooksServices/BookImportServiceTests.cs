@@ -34,7 +34,7 @@ public class BookImportServiceTests
 
         var rows = new[]
         {
-            new ParsedBookRow
+            new Core.Models.DTO.BookCsvRow
             {
                 Title = "Dune",
                 Pages = 412,
@@ -74,7 +74,7 @@ public class BookImportServiceTests
         var fileReader = new Mock<IFileReader>();
         fileReader.Setup(fr => fr.ReadLines("books.csv")).Returns(["header", "data1", "data2"]);
 
-        var dune = new ParsedBookRow
+        var dune = new Core.Models.DTO.BookCsvRow
         {
             Title = "Dune",
             Pages = 412,
@@ -108,7 +108,7 @@ public class BookImportServiceTests
         var author = new Author { Id = Guid.NewGuid(), Name = "Frank Herbert" };
         var genre = new Genre { Id = Guid.NewGuid(), Name = "Sci-Fi" };
         var publisher = new Publisher { Id = Guid.NewGuid(), Name = "Ace Books" };
-        var existing = new Book
+        var existing = new Core.Models.Entities.Book
         {
             Id = Guid.NewGuid(),
             Title = "Dune",
@@ -130,7 +130,7 @@ public class BookImportServiceTests
 
         var rows = new[]
         {
-            new ParsedBookRow
+            new Core.Models.DTO.BookCsvRow
             {
                 Title = "Dune",
                 Pages = 412,
@@ -164,7 +164,7 @@ public class BookImportServiceTests
 
         var rows = new[]
         {
-            new ParsedBookRow
+            new Core.Models.DTO.BookCsvRow
             {
                 Title = "Dune",
                 Pages = 412,
@@ -173,7 +173,7 @@ public class BookImportServiceTests
                 Author = "Frank Herbert",
                 Publisher = "Ace Books"
             },
-            new ParsedBookRow
+            new Core.Models.DTO.BookCsvRow
             {
                 Title = "Dune Messiah",
                 Pages = 256,
@@ -211,9 +211,9 @@ public class BookImportServiceTests
 
         var rows = new[]
             {
-                new ParsedBookRow { Title = "A", Pages = 100, Genre = "G", Author = "Au", Publisher = "Pu", ReleaseDate = new DateTime(2000,1,1) },
-                new ParsedBookRow { Title = "B", Pages = 100, Genre = "G", Author = "Au", Publisher = "Pu", ReleaseDate = new DateTime(2000,1,1) },
-                new ParsedBookRow { Title = "C", Pages = 100, Genre = "G", Author = "Au", Publisher = "Pu", ReleaseDate = new DateTime(2000,1,1) }
+                new Core.Models.DTO.BookCsvRow { Title = "A", Pages = 100, Genre = "G", Author = "Au", Publisher = "Pu", ReleaseDate = new DateTime(2000,1,1) },
+                new Core.Models.DTO.BookCsvRow { Title = "B", Pages = 100, Genre = "G", Author = "Au", Publisher = "Pu", ReleaseDate = new DateTime(2000,1,1) },
+                new Core.Models.DTO.BookCsvRow { Title = "C", Pages = 100, Genre = "G", Author = "Au", Publisher = "Pu", ReleaseDate = new DateTime(2000,1,1) }
             };
         var parser = CreateParserMockReturning(rows);
 
@@ -239,7 +239,7 @@ public class BookImportServiceTests
 
         var rows = new[]
         {
-            new ParsedBookRow
+            new Core.Models.DTO.BookCsvRow
             {
                 Title = "Dune",
                 Pages = 412,
@@ -313,7 +313,7 @@ public class BookImportServiceTests
         return new AppDbContext(options);
     }
 
-    private static Mock<IBookParser> CreateParserMockReturning(IEnumerable<ParsedBookRow> rows)
+    private static Mock<IBookParser> CreateParserMockReturning(IEnumerable<Core.Models.DTO.BookCsvRow> rows)
     {
         var parser = new Mock<IBookParser>(MockBehavior.Strict);
         parser.Setup(p => p.Parse(It.IsAny<IEnumerable<string>>()))

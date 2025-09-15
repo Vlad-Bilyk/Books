@@ -18,7 +18,7 @@ public class BookCsvParser : IBookParser
         _logger = logger;
     }
 
-    public IEnumerable<ParsedBookRow> Parse(IEnumerable<string> rows)
+    public IEnumerable<BookCsvRow> Parse(IEnumerable<string> rows)
     {
         const int ExpectedColumns = 6;
 
@@ -59,7 +59,7 @@ public class BookCsvParser : IBookParser
                 continue;
             }
 
-            yield return new ParsedBookRow()
+            yield return new BookCsvRow()
             {
                 Title = bookData[0].Trim(),
                 Pages = pages,

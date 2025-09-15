@@ -46,7 +46,7 @@ public class BookImportService : IBookImportService
         return await ImportAsync(rows, ct);
     }
 
-    private async Task<ImportResult> ImportAsync(IEnumerable<ParsedBookRow> books, CancellationToken ct = default)
+    private async Task<ImportResult> ImportAsync(IEnumerable<Core.Models.DTO.BookCsvRow> books, CancellationToken ct = default)
     {
         var result = new ImportResult();
 
@@ -55,7 +55,7 @@ public class BookImportService : IBookImportService
         var publishers = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
 
         var localBookKeys = new HashSet<string>();
-        var toInsert = new List<Book>();
+        var toInsert = new List<Core.Models.Entities.Book>();
 
         foreach (var book in books)
         {
@@ -147,7 +147,7 @@ public class BookImportService : IBookImportService
         return id;
     }
 
-    private static Book BuildBookEntity(ParsedBookRow book, Guid genreId, Guid authorId, Guid publisherId)
+    private static Core.Models.Entities.Book BuildBookEntity(Core.Models.DTO.BookCsvRow book, Guid genreId, Guid authorId, Guid publisherId)
     {
         return new()
         {

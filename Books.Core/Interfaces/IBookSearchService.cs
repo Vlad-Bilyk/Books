@@ -5,5 +5,5 @@ namespace Books.Core.Interfaces;
 
 public interface IBookSearchService
 {
-    Task<List<Book>> SearchBooksAsync(Filter filter, CancellationToken ct = default);
+    Task<List<Models.Entities.Book>> SearchBooksAsync(Filter filter, CancellationToken ct = default);
 }

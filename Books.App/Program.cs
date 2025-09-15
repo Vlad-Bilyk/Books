@@ -26,6 +26,9 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IFilterReader, JsonFilterReader>();
         services.AddScoped<IBookSearchService, BookSearchService>();
 
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<IBookCsvWriter, CsvExportWriter>();
+
         services.AddScoped<AppRunner>();
     })
     .Build();

@@ -4,5 +4,5 @@ namespace Books.Core.Interfaces;
 
 public interface IBookParser
 {
-    public IEnumerable<ParsedBookRow> Parse(IEnumerable<string> rows);
+    public IEnumerable<BookCsvRow> Parse(IEnumerable<string> rows);
 }

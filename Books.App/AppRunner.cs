@@ -10,14 +10,16 @@ public class AppRunner
     private readonly IBookImportService _bookImportService;
     private readonly IBookSearchService _bookSearchService;
     private readonly IFilterReader _filterReader;
+    private readonly IBookCsvWriter _csvWriter;
 
     public AppRunner(IConsoleWrapper console, IBookImportService bookImportService,
-        IBookSearchService bookSearchService, IFilterReader filterReader)
+        IBookSearchService bookSearchService, IFilterReader filterReader, IBookCsvWriter csvWriter)
     {
         _console = console ?? throw new ArgumentNullException(nameof(console));
         _bookImportService = bookImportService ?? throw new ArgumentNullException(nameof(bookImportService));
         _bookSearchService = bookSearchService ?? throw new ArgumentNullException(nameof(bookSearchService));
         _filterReader = filterReader ?? throw new ArgumentNullException(nameof(filterReader));
+        _csvWriter = csvWriter ?? throw new ArgumentNullException(nameof(csvWriter));
     }
 
     public async Task RunAsync(CancellationToken ct = default)
@@ -38,8 +40,28 @@ public class AppRunner
             }
             else if (input == "2")
             {
-                var searchedBooks = await SearchBooks(ct);
-                PrintBooks(searchedBooks);
+                var foundBooks = await SearchBooks(ct);
+                PrintBooks(foundBooks);
+
+                _console.WriteLine("\nExport results to CSV? (y/n): ");
+                input = _console.ReadLine()?.Trim();
+                input = input?.ToLowerInvariant();
+
+                if (input == "y" || input == "yes")
+                {
+                    _console.WriteLine("Enter ouput directory (leave blank to use app folder)");
+                    input = _console.ReadLine()?.Trim();
+
+                    await ExportBooksAsync(foundBooks, input, ct);
+                }
+                else if (input == "n" || input == "no")
+                {
+                    _console.WriteLine("Export cancelled. Returning to main menu.");
+                }
+                else
+                {
+                    _console.WriteLine("Invalid option. Returning to main menu.");
+                }
             }
             else if (input == "0")
             {
@@ -58,7 +80,7 @@ public class AppRunner
         var inPath = _console.ReadLine()?.Trim() ?? string.Empty;
         if (string.IsNullOrWhiteSpace(inPath))
         {
-            _console.WriteLine("Input/output path is empty.");
+            _console.WriteLine("Input path is empty.");
             return;
         }
         var inFull = Path.GetFullPath(inPath);
@@ -147,9 +169,29 @@ public class AppRunner
         }
     }
 
-    // TODO: Placeholder for future export functionality
-    private void ExportBooks(IEnumerable<Book> books)
+    private async Task ExportBooksAsync(IEnumerable<Book> foundBooks, string? outputDir = null, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var books = foundBooks
+            .OrderBy(b => b.Title)
+            .Select(b => new BookCsvRow
+            {
+                Title = b.Title,
+                Pages = b.Pages,
+                Genre = b.Genre.Name,
+                ReleaseDate = b.ReleaseDate,
+                Author = b.Author.Name,
+                Publisher = b.Publisher.Name
+            }
+        );
+
+        try
+        {
+            var path = await _csvWriter.WriteAsync(books, outputDir, ct);
+            _console.WriteLine($"Export complete: {path}");
+        }
+        catch (Exception ex)
+        {
+            _console.WriteLine($"Error exporting to CSV: {ex.Message}");
+        }
     }
 }

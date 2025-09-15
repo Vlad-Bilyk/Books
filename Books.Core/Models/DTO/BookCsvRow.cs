@@ -1,6 +1,6 @@
 ﻿namespace Books.Core.Models.DTO;
 
-public class ParsedBookRow
+public class BookCsvRow
 {
     public string Title { get; set; } = string.Empty;
     public int Pages { get; set; }
