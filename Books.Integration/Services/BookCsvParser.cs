@@ -8,6 +8,9 @@ namespace Books.Infrastructure.Services;
 
 public class BookCsvParser : IBookParser
 {
+    private const string _expectedHeaderLine = "Title,Pages,Genre,ReleaseDate,Author,Publisher";
+    private static readonly string[] _expectedHeaderColumns = ["Title", "Pages", "Genre", "ReleaseDate", "Author", "Publisher"];
+
     private readonly ILogger<BookCsvParser> _logger;
 
     public BookCsvParser(ILogger<BookCsvParser> logger)
@@ -17,9 +20,12 @@ public class BookCsvParser : IBookParser
 
     public IEnumerable<ParsedBookRow> Parse(IEnumerable<string> rows)
     {
-        const int MinColumns = 6;
+        const int ExpectedColumns = 6;
 
-        foreach (var row in rows.Skip(1)) // skip header
+        var list = rows.ToList() ?? throw new ArgumentException(null, nameof(rows));
+        EnsureValidHeader(list.FirstOrDefault());
+
+        foreach (var row in list.Skip(1)) // skip header
         {
             if (!IsValidRow(row))
             {
@@ -28,7 +34,7 @@ public class BookCsvParser : IBookParser
 
             var bookData = Regex.Split(row.Trim(), ",(?=\\S)");
 
-            if (bookData.Length != MinColumns)
+            if (bookData.Length != ExpectedColumns)
             {
                 _logger.LogWarning("Row does not contain exactly 6 fields. Found {FieldCount}. Skipped: {@Row}", bookData.Length, row);
                 continue;
@@ -80,5 +86,25 @@ public class BookCsvParser : IBookParser
         }
 
         return true;
+    }
+
+    private static void EnsureValidHeader(string? headerLine)
+    {
+        if (string.IsNullOrWhiteSpace(headerLine))
+        {
+            throw new InvalidDataException("Header line is empty or whitespace.");
+        }
+
+        if (string.Equals(headerLine.Trim(), _expectedHeaderLine, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var headers = headerLine.Split(',');
+        if (headers.Length != _expectedHeaderColumns.Length ||
+            !headers.SequenceEqual(_expectedHeaderColumns, StringComparer.OrdinalIgnoreCase))
+        {
+            throw new InvalidDataException($"Invalid CSV header. Expected: '{_expectedHeaderLine}'. Found: '{headerLine}'.");
+        }
     }
 }

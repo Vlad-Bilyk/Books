@@ -179,6 +179,42 @@ public class BookCsvParserTests
         Assert.Contains(result, b => b.Title == "Pride and Prejudice" && b.Pages == 432);
     }
 
+    [Fact]
+    public void Parse_OnlyHeaderRow_ReturnsEmptyCollection()
+    {
+        // Arrange
+        var rows = new[]
+        {
+            "Title,Pages,Genre,ReleaseDate,Author,Publisher"
+        };
+        var parser = CreateParser();
+
+        // Act
+        var result = parser.Parse(rows).ToList();
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Parse_NonHeaderRowOrIncorrect_ThrowsInvalidDataException()
+    {
+        // Arrange
+        var rows1 = new[]
+        {
+            "Wrong,Header,Row"
+        };
+        var rows2 = new[]
+        {
+            "Title,Pages,Genre,ReleaseDate,Author" // Missing Publisher
+        };
+        var parser = CreateParser();
+
+        // Act & Assert
+        Assert.Throws<InvalidDataException>(() => parser.Parse(rows1).ToList());
+        Assert.Throws<InvalidDataException>(() => parser.Parse(rows2).ToList());
+    }
+
     private static BookCsvParser CreateParser()
     {
         return new BookCsvParser(new NullLogger<BookCsvParser>());

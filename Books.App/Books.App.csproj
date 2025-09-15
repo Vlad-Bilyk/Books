@@ -35,4 +35,10 @@
     <ProjectReference Include="..\Books.Integration\Books.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="filter.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
