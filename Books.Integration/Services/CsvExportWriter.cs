@@ -42,7 +42,7 @@ public class CsvExportWriter : IBookCsvWriter
         {
             ct.ThrowIfCancellationRequested();
 
-            await writer.WriteLineAsync($"{book.Title},{book.Pages},{book.Genre},{book.ReleaseDate},{book.Author},{book.Publisher}");
+            await writer.WriteLineAsync($"{book.Title},{book.Pages},{book.Genre},{book.ReleaseDate.ToString("yyyy-MM-dd")},{book.Author},{book.Publisher}");
         }
 
         await writer.FlushAsync();
