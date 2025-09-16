@@ -16,11 +16,6 @@ public class JsonFilterReaderTests
         _loggerMock = new Mock<ILogger<JsonFilterReader>>(MockBehavior.Loose);
     }
 
-    private JsonFilterReader CreateService()
-    {
-        return new JsonFilterReader(_loggerMock.Object, _fileReaderMock.Object);
-    }
-
     [Fact]
     public void Read_WhenPathIsNullOrWhitespace_ThrowsArgumentException()
     {
@@ -175,5 +170,10 @@ public class JsonFilterReaderTests
 
         // Act & Assert
         Assert.Throws<InvalidDataException>(() => service.Read("filter.json"));
+    }
+
+    private JsonFilterReader CreateService()
+    {
+        return new JsonFilterReader(_loggerMock.Object, _fileReaderMock.Object);
     }
 }
