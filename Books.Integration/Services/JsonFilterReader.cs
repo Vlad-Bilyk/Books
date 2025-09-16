@@ -5,6 +5,9 @@ using System.Text.Json;
 
 namespace Books.Infrastructure.Services;
 
+/// <summary>
+/// Reads and validates filter settings from a JSON file.
+/// </summary>
 public class JsonFilterReader : IFilterReader
 {
     private static readonly JsonSerializerOptions _jsonOptions = new()
@@ -22,6 +25,13 @@ public class JsonFilterReader : IFilterReader
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <summary>
+    /// Loads a filter from <paramref name="filterPath"/>.
+    /// </summary>
+    /// <param name="filterPath">Path to <c>filter.json</c>.</param>
+    /// <returns>Deserialized and validated <see cref="Filter"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown when path is empty.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when JSON is invalid.</exception>
     public Filter Read(string filterPath)
     {
         if (string.IsNullOrWhiteSpace(filterPath))

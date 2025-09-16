@@ -4,6 +4,9 @@ using Books.Core.Models.Entities;
 
 namespace Books.App;
 
+/// <summary>
+/// Runs the console menu: import, search, optional export.
+/// </summary>
 public class AppRunner
 {
     private readonly IConsoleWrapper _console;
@@ -22,6 +25,10 @@ public class AppRunner
         _csvWriter = csvWriter ?? throw new ArgumentNullException(nameof(csvWriter));
     }
 
+    /// <summary>
+    /// Runs the menu loop until the user exits.
+    /// </summary>
+    /// <param name="ct">Cancellation token.</param>
     public async Task RunAsync(CancellationToken ct = default)
     {
         while (true)
@@ -49,7 +56,7 @@ public class AppRunner
 
                 if (input == "y" || input == "yes")
                 {
-                    _console.WriteLine("Enter ouput directory (leave blank to use app folder)");
+                    _console.WriteLine("Enter output directory (leave blank to use app folder)");
                     input = _console.ReadLine()?.Trim();
 
                     await ExportBooksAsync(foundBooks, input, ct);

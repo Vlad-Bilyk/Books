@@ -7,6 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Books.Infrastructure.Services;
 
+/// <summary>
+/// Imports books from CSV into the database.
+/// </summary>
 public class BookImportService : IBookImportService
 {
     private readonly AppDbContext _db;
@@ -23,6 +26,13 @@ public class BookImportService : IBookImportService
         _logger = logger;
     }
 
+    /// <summary>
+    /// Imports a CSV file and persists new books.
+    /// </summary>
+    /// <param name="filePath">CSV file path.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Result counters for added/duplicates.</returns>
+    /// <exception cref="ArgumentException">Thrown when path is empty or not a .csv file.</exception>
     public async Task<ImportResult> ImportFileAsync(string filePath, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(filePath))
@@ -46,7 +56,7 @@ public class BookImportService : IBookImportService
         return await ImportAsync(rows, ct);
     }
 
-    private async Task<ImportResult> ImportAsync(IEnumerable<Core.Models.DTO.BookCsvRow> books, CancellationToken ct = default)
+    private async Task<ImportResult> ImportAsync(IEnumerable<BookCsvRow> books, CancellationToken ct = default)
     {
         var result = new ImportResult();
 
@@ -55,7 +65,7 @@ public class BookImportService : IBookImportService
         var publishers = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
 
         var localBookKeys = new HashSet<string>();
-        var toInsert = new List<Core.Models.Entities.Book>();
+        var toInsert = new List<Book>();
 
         foreach (var book in books)
         {
@@ -147,7 +157,7 @@ public class BookImportService : IBookImportService
         return id;
     }
 
-    private static Core.Models.Entities.Book BuildBookEntity(Core.Models.DTO.BookCsvRow book, Guid genreId, Guid authorId, Guid publisherId)
+    private static Book BuildBookEntity(BookCsvRow book, Guid genreId, Guid authorId, Guid publisherId)
     {
         return new()
         {

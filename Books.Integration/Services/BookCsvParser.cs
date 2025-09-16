@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace Books.Infrastructure.Services;
 
+/// <summary>
+/// Parses CSV lines into <see cref="BookCsvRow"/> items.
+/// </summary>
 public class BookCsvParser : IBookParser
 {
     private const string _expectedHeaderLine = "Title,Pages,Genre,ReleaseDate,Author,Publisher";
@@ -18,6 +21,11 @@ public class BookCsvParser : IBookParser
         _logger = logger;
     }
 
+    /// <summary>
+    /// Parses CSV lines (first line is header) into DTO rows.
+    /// </summary>
+    /// <param name="rows">CSV lines including header.</param>
+    /// <returns>Parsed <see cref="BookCsvRow"/> sequence; invalid lines are skipped.</returns>
     public IEnumerable<BookCsvRow> Parse(IEnumerable<string> rows)
     {
         const int ExpectedColumns = 6;

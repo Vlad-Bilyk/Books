@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Books.Infrastructure.Services;
 
+/// <summary>
+/// Writes book search results to a CSV file (fixed schema).
+/// </summary>
 public class CsvExportWriter : IBookCsvWriter
 {
     private const string _csvFileExtension = ".csv";
@@ -19,6 +22,14 @@ public class CsvExportWriter : IBookCsvWriter
         _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     }
 
+    /// <summary>
+    /// Writes rows to a CSV file with header.
+    /// </summary>
+    /// <param name="foundBooks">Rows to export.</param>
+    /// <param name="outputDir">Target directory; if null/empty, uses app folder.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Full path to the created CSV file.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="foundBooks"/> is null.</exception>
     public async Task<string> WriteAsync(IEnumerable<BookCsvRow> foundBooks, string? outputDir = null, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(foundBooks);

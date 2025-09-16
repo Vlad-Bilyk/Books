@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Books.Infrastructure.Services;
 
+/// <summary>
+/// Executes filtered book queries against the database.
+/// </summary>
 public class BookSearchService : IBookSearchService
 {
     private readonly AppDbContext _db;
@@ -15,6 +18,12 @@ public class BookSearchService : IBookSearchService
         _db = db ?? throw new ArgumentNullException(nameof(db));
     }
 
+    /// <summary>
+    /// Searches books using the given filter (AND-combined criteria).
+    /// </summary>
+    /// <param name="filter">Filter settings (Title/Author/Genre/Publisher, pages, dates).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Matching books ordered by title.</returns>
     public async Task<List<Book>> SearchBooksAsync(Filter filter, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(filter);

@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Books.Infrastructure.Data;
 
+/// <summary>
+/// EF Core database context for the application data model.
+/// </summary>
 public class AppDbContext : DbContext
 {
     public DbSet<Author> Authors { get; set; }
